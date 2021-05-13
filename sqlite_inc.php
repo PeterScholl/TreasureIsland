@@ -63,6 +63,9 @@
   //wechsel zu wunsch-Client-ID wenn möglich
   function changeToClientID($pref_id) {
     global $db;
+    if (!is_numeric($pref_id)) {
+      $pref_id=-1;
+    }
     console_log("Wechsel zu Wunsch-ID prüfen ".$pref_id);
     //Client in Datenbank suchen
     $sql = "select rowid,inseltyp from clients where session_id='".session_id()."' AND rowid=".$pref_id.";";
@@ -155,6 +158,9 @@
   //kann später über die Datenbank erledgit werden
   function isEnabled($string) {
     if ($string=="allowMultipClientsPerIP") {
+      return true;
+    }
+    if ($string=="allowToChangeIsland") {
       return true;
     }
     return false;
@@ -327,5 +333,26 @@ EOF;
     }
   }
    
+  //Limits prüfen
+  if (CHECKLIMITS) {
+    // Alle Clients und Bordkarten löschen die älter als MAXTIME sind
+    $sql = "DELETE FROM piraten where strftime('%s','now') - strftime('%s',erzeugt) > ".MAXTIME.";";
+    console_log("SQL: ".$sql);
+    if($db->exec($sql)) {
+      console_log("piraten bereinigt");
+    } else {
+      console_log("Piratenbereinigung fehltgeschlagen");
+      console_log("Fehler: ".$db->lastErrorMsg);
+    }
+    $sql = "DELETE FROM clients where strftime('%s','now') - strftime('%s',created) > ".MAXTIME.";";
+    console_log("SQL: ".$sql);
+    if($db->exec($sql)) {
+      console_log("clients bereinigt");
+    } else {
+      console_log("Clientbereinigung fehltgeschlagen");
+      console_log("Fehler: ".$db->lastErrorMsg);
+    }
+    
+  }
 
 ?>

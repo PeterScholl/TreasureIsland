@@ -5,6 +5,8 @@
    ini_set('error_log', './ERROR.LOG');
    error_reporting(E_ALL & ~E_NOTICE);
 
+  require_once("config.php"); // konfiguration lesen
+
     //Funktionen für Log-auf die Konsole
     function console_log_json( $data ){
         echo '<script>';

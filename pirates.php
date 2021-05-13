@@ -4,6 +4,8 @@
   ini_set('log_errors', 1);
   ini_set('error_log', './ERROR.LOG');
   error_reporting(E_ALL & ~E_NOTICE);
+  
+  require_once("config.php"); // konfiguration lesen
 
   // Initialize the session
   session_start();
@@ -55,7 +57,9 @@
       console_log( "Opened database successfully");
    }
  
-    setClientIDUndInselTyp();
+    if (!changeToClientID($_SESSION["clientid"])) {
+      setClientIDUndInselTyp();
+    }
     
     //ab hier sollte ein Inseltyp bekannt sein
     //Name des Bildes ermitteln
@@ -97,16 +101,27 @@
           $message_err = "Die Bordkarte mit der Nummer ".$bknr." gibt es nicht!";
         }
       }
-      if (isset($_GET["incInselNr"])) { // Inselnr um eins erhöhen
-        $neueNr = $_SESSION['inseltyp']+1;
-        if ($neueNr > 6) {
-          $neueNr = 1;
-        }
-        if (inselNrVonClientSetzen($_SESSION['clientid'], $neueNr)) {
-          console_log("Inseltyp wird neu gesetzt");
-          $_SESSION['inseltyp']=$neueNr;
+      if (isset($_GET["incInselNr"]) || isset($_GET["decInselNr"])) { // Inselnr um eins erhöhen oder veringern
+        if (isEnabled("allowToChangeIsland")) {
+          if (isset($_GET["incInselNr"])) { //inselnummer um eins erhöhen
+            $neueNr = $_SESSION['inseltyp']+1;
+            if ($neueNr > 6) {
+              $neueNr = 1;
+            }
+          } else { //inselnummer um eins verringern
+            $neueNr = $_SESSION['inseltyp']-1;
+            if ($neueNr<1) {
+              $neueNr = 6;
+            }
+          }
+          if (inselNrVonClientSetzen($_SESSION['clientid'], $neueNr)) {
+            console_log("Inseltyp wird neu gesetzt");
+            $_SESSION['inseltyp']=$neueNr;
+          } else {
+            console_log("FEHLER: Inseltyp konnte nicht gesetzt werden");
+          }
         } else {
-          console_log("FEHLER: Inseltyp konnte nicht gesetzt werden");
+          $message_err = "Änderung der Inselnummer nicht erlaubt";
         }
       }
       if (isset($_GET["newClientID"])) { //Neue ClientID erzeugen
@@ -144,9 +159,18 @@
       <li class="nav-item">
         <a class="nav-link" href="?neueBK">Neue Bordkarte</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="?incInselNr">Nächste Insel</a>
+      <?php
+      if (isEnabled("allowToChangeIsland")):?>
+      <li class="nav-item ml-2">
+        <a class="nav-link" href="?decInselNr"><</a>
       </li>
+      <span class="navbar-text">
+        Inseltyp
+      </span>
+      <li class="nav-item mr-2">
+        <a class="nav-link" href="?incInselNr">></a>
+      </li>
+      <?php endif ?>
       <?php
       if (isEnabled("allowMultipClientsPerIP")):?>
         <!-- Dropdown -->
