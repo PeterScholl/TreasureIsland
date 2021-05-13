@@ -131,7 +131,15 @@
       console_log("SQL: ".$sql);
       if($res=$db->querySingle($sql)) {
         console_log("Result: ".$res);
-        if ($res>MAXCLIENTS) {
+        if ($res>=MAXCLIENTS) {
+          return false;
+        }
+      }
+      $sql = "select count(*) as anz from clients where session_id='".session_id()."';";
+      console_log("SQL: ".$sql);
+      if($res=$db->querySingle($sql)) {
+        console_log("Result: ".$res);
+        if ($res>=MAXCLIENTIDS) {
           return false;
         }
       }
@@ -176,7 +184,7 @@
         $anz_bk=$res;
       }
       console_log("Es gibt ".$anz_bk." Bordkarten");
-      if ($anz_bk > MAXBK) { // Zu viele Bordkarten
+      if ($anz_bk >= MAXBK) { // Zu viele Bordkarten
         return false;
       }
       $bknr = -1;

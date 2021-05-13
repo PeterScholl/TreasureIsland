@@ -122,16 +122,9 @@ EOF;
   </button>
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
-        <?php echo 'ID:'.$_SESSION["clientid"]; ?>
       <li class="nav-item">
         <a class="nav-link" href="pirates.php">Home</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Neue Bordkarte</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="admin.php">Admin</a>
-      </li>    
     </ul>
   </div>  
 </nav>

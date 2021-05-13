@@ -134,7 +134,7 @@
         if (isEnabled("allowMultipClientsPerIP") && generateExtraClientID()) {
           $message_info = "Neue Client-ID erzeugt";
         } else {
-          $message_err = "Neue Client-ID erzeugen - nicht erlaubt, evtl. Maximum (".MAXCLIENTS.") überschritten...";
+          $message_err = "Neue Client-ID erzeugen - nicht erlaubt, evtl. Maximum (".MAXCLIENTS.") oder Maximum pro Session (".MAXCLIENTIDS.") überschritten...";
         }        
       }
       if (isset($_GET["preferredClientID"])) { //zu anderer ClientID-wechseln wenn möglich
@@ -246,6 +246,9 @@
       <hr class="d-sm-none">
     </div>
   </div>
+</div>
+<div class="container m-3">
+  &nbsp;
 </div>
 
 <?php
