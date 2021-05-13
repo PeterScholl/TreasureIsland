@@ -60,6 +60,26 @@
     }
   }
 
+  //wechsel zu wunsch-Client-ID wenn möglich
+  function changeToClientID($pref_id) {
+    global $db;
+    console_log("Wechsel zu Wunsch-ID prüfen ".$pref_id);
+    //Client in Datenbank suchen
+    $sql = "select rowid,inseltyp from clients where session_id='".session_id()."' AND rowid=".$pref_id.";";
+    console_log("SQL: ".$sql);
+    $res=$db->query($sql);
+    if ($row = $res->fetchArray(SQLITE3_ASSOC)) { // gefunden
+      $sql = "UPDATE clients set lastedited=strftime('%Y-%m-%d %H:%M:%S','now') where rowid='".$row['rowid']."';";
+      console_log("SQL: ".$sql);
+      $res=$db->exec($sql);
+      $_SESSION["clientid"]=$row['rowid'];
+      $_SESSION["inseltyp"]=$row['inseltyp'];
+      console_log("clientid: ".$_SESSION["clientid"]." inseltyp: ".$_SESSION["inseltyp"]);
+      return true;
+    }
+    return false;
+  }
+  
   function setClientIDUndInselTyp() {
         global $db;
         console_log("Session-ID setzen und in Datenbank registrieren - Inseltyp bestimmen");
@@ -68,7 +88,7 @@
         console_log("SQL: ".$sql);
         $res=$db->query($sql);
         if ($row = $res->fetchArray(SQLITE3_ASSOC)) { // gefunden
-          $sql = "UPDATE clients set lastedited=strftime('%Y-%m-%d %H:%M:%S','now') where session_id='".session_id()."';";
+          $sql = "UPDATE clients set lastedited=strftime('%Y-%m-%d %H:%M:%S','now') where rowid='".$row['rowid']."';";
           console_log("SQL: ".$sql);
           $res=$db->exec($sql);
           $_SESSION["clientid"]=$row['rowid'];
@@ -93,6 +113,22 @@
           }
         }  
   }
+  
+  //gibt alle zulässigen Client-IDs als Array zu dieser Session-ID
+  function getPossibleClientIDs() {
+    $return = array();
+    global $db;
+    console_log("Session-IDs für diese Session-ID auslesen");
+    //Client in Datenbank suchen
+    $sql = "select rowid,inseltyp from clients where session_id='".session_id()."';";
+    console_log("SQL: ".$sql);
+    $res=$db->query($sql);
+    while ($row = $res->fetchArray(SQLITE3_ASSOC)) { // gefunden
+      array_push($return, $row['rowid']);      
+    }
+    return $return;
+  }
+  
   
   //erzeugt zu dieser Session-ID eine neue Client-ID
   function generateExtraClientID() {

@@ -116,6 +116,14 @@
         } else {
           $message_err = "Neue Client-ID erzeugen - nicht erlaubt";
         }        
+      }
+      if (isset($_GET["preferredClientID"])) { //zu anderer ClientID-wechseln wenn möglich
+        $pref_id = trim(filter_input(INPUT_GET, 'preferredClientID', FILTER_VALIDATE_INT));
+        if (changeToClientID($pref_id)) {
+          $message_info = "Client-ID geändert";
+        } else {
+          $message_err = "Wechsel zu Client-ID ".$pref_id." nicht möglich";
+        }        
       } 
     }
     
@@ -140,10 +148,21 @@
         <a class="nav-link" href="?incInselNr">Nächste Insel</a>
       </li>
       <?php
-      if (isEnabled("allowMultipClientsPerIP")) {
-        echo"<li class=\"nav-item\"><a class=\"nav-link\" href=\"?newClientID\">WeitereClientID</a></li>";
-      }
-      ?>
+      if (isEnabled("allowMultipClientsPerIP")):?>
+        <!-- Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+            ClientID
+          </a>
+          <div class="dropdown-menu">
+            <?php foreach (getPossibleClientIDs() as $ids) {
+              echo "<a class=\"dropdown-item\" href=\"?preferredClientID=".$ids."\">Client-ID ".$ids."</a>";
+            }
+            ?>
+            <a class="dropdown-item" href="?neueClientID">Neue ID</a>
+          </div>
+        </li>
+      <?php endif ?>
       <li class="nav-item">
         <a class="nav-link" href="admin.php">Admin</a>
       </li>    
