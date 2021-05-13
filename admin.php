@@ -16,6 +16,15 @@
       echo 'console.log("'. $data .'")';
       echo '</script>';
     }
+
+    // Initialize the session
+    session_start();
+    // Check if the user is logged in, if not then redirect him to login page
+    // TODO - erledigen
+    if(!isset($_SESSION["adminloggedin"]) || $_SESSION["adminloggedin"] !== true){
+        header("location: adminlogin.php");
+        exit;
+    }
     
     //Open-and-prepare database
     require_once("sqlite_inc.php");
@@ -26,18 +35,6 @@
       console_log( "Opened database successfully");
    }
    
-    // Initialize the session
-    session_start();
-    // Check if the user is logged in, if not then redirect him to login page
-    // TODO - erledigen
-    if(!isset($_SESSION["adminloggedin"]) || $_SESSION["adminloggedin"] !== true){
-        header("location: adminlogin.php");
-        exit;
-    }
-    
- 
-    // Include config file
-    require_once "config.php";
     
     // Define variables and initialize with empty values
     $username = $password = "";

@@ -1,9 +1,26 @@
 <?php
-    //debug-Optionen
-   ini_set('display_errors', 1);
-   ini_set('log_errors', 1);
-   ini_set('error_log', './ERROR.LOG');
-   error_reporting(E_ALL & ~E_NOTICE);
+  //debug-Optionen
+  ini_set('display_errors', 1);
+  ini_set('log_errors', 1);
+  ini_set('error_log', './ERROR.LOG');
+  error_reporting(E_ALL & ~E_NOTICE);
+
+  // Initialize the session
+  session_start();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Treasure-Island - with Bootstrap4 and php</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<?php
    
     //Funktionen für Log-auf die Konsole
     function console_log_json( $data ){
@@ -16,6 +33,11 @@
       echo 'console.log("'. $data .'")';
       echo '</script>';
     }
+    // für Testzwecke unset session variable
+    //unset($_SESSION["clientid"]);
+    //console_log("Client-ID gelöscht: ".$_SESSION["clientid"]);
+    //session_destroy();
+    console_log("Session-ID: ".session_id());
     
     //Variablen anlegen und leer setzen
     $bildname = "";
@@ -24,7 +46,7 @@
     define("Z_BKEINGABE",1);
     $zustand = Z_BKEINGABE;
     
-    //Open-and-prepare database
+   //Open-and-prepare database
     require_once("sqlite_inc.php");
 
    if(!$db) {
@@ -32,14 +54,6 @@
    } else {
       console_log( "Opened database successfully");
    }
-   
-    // Initialize the session
-    session_start();
-    // für Testzwecke unset session variable
-    //unset($_SESSION["clientid"]);
-    //console_log("Client-ID gelöscht: ".$_SESSION["clientid"]);
-    //session_destroy();
-    console_log("Session-ID: ".session_id());
  
     setClientIDUndInselTyp();
     
@@ -48,8 +62,6 @@
     //$bildname=gibBildName($_SESSION["inseltyp"]);
    
  
-    // Include config file
-    require_once "config.php";
     
         // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
@@ -100,29 +112,14 @@
     }
     
     //nur für Testzwecke
-    console_log(gibInselNr());
+    //console_log(gibInselNr());
 
     
 ?>
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Treasure-Island - with Bootstrap4 and php</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <style>
-  .fakeimg {
-    height: 200px;
-    background: #aaa;
-  }
-  </style>
-</head>
+
+
 <body>
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">

@@ -13,10 +13,7 @@ if(isset($_SESSION["adminloggedin"]) && $_SESSION["adminloggedin"] === true){
     header("location: admin.php");
     exit;
 }
- 
-// Include config file
-require_once "config.php";
- 
+  
 // Define variables and initialize with empty values
 $username = $password = "";
 $username_err = $password_err = $login_err = "";
