@@ -94,6 +94,36 @@
         }  
   }
   
+  //erzeugt zu dieser Session-ID eine neue Client-ID
+  function generateExtraClientID() {
+    global $db;
+    //TODO: Prüfen ob zu viele Clients in der letzten Zeit (Minute, Stunde, 5 Minuten... ?) erstellt wurden
+    $_SESSION["inseltyp"]=gibInselNr();
+    $sql = "INSERT INTO clients (session_id, inseltyp, ipaddr, lastedited, created) VALUES ".
+    "('".session_id()."',".$_SESSION["inseltyp"].",'".getUserIpAddr()."',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
+    console_log("SQL: ".$sql);
+    if($db->exec($sql)) {
+      console_log("Insel registriert");
+    } else {
+      console_log("Eintrag nicht erfolgt");
+      console_log("Fehler: ".$db->lastErrorMsg);
+    }
+    $sql = "select max(rowid) from clients where session_id='".session_id()."';";
+    console_log("SQL: ".$sql);
+    if($res=$db->querySingle($sql)) {
+      $_SESSION["clientid"]=$res;
+    }    
+  }
+  
+  //prüft ob in den Optionen gewisse Dinge erlaubt sind
+  //kann später über die Datenbank erledgit werden
+  function isEnabled($string) {
+    if ($string=="allowMultipClientsPerIP") {
+      return true;
+    }
+    return false;
+  }
+  
   function gibNeueBordkartenNummer() {
       global $db;
       //Anzahl vorhandener Bordkarten ermitteln

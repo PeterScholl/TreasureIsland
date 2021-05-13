@@ -108,12 +108,17 @@
         } else {
           console_log("FEHLER: Inseltyp konnte nicht gesetzt werden");
         }
+      }
+      if (isset($_GET["newClientID"])) { //Neue ClientID erzeugen
+        if (isEnabled("allowMultipClientsPerIP")) {
+          generateExtraClientID();
+          $message_info = "Neue Client-ID erzeugt";
+        } else {
+          $message_err = "Neue Client-ID erzeugen - nicht erlaubt";
+        }        
       } 
     }
     
-    //nur für Testzwecke
-    //console_log(gibInselNr());
-
     
 ?>
 
@@ -126,7 +131,7 @@
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" href="#">Home</a>
+        <a class="nav-link" href="pirates.php">Home</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="?neueBK">Neue Bordkarte</a>
@@ -134,6 +139,11 @@
       <li class="nav-item">
         <a class="nav-link" href="?incInselNr">Nächste Insel</a>
       </li>
+      <?php
+      if (isEnabled("allowMultipClientsPerIP")) {
+        echo"<li class=\"nav-item\"><a class=\"nav-link\" href=\"?newClientID\">WeitereClientID</a></li>";
+      }
+      ?>
       <li class="nav-item">
         <a class="nav-link" href="admin.php">Admin</a>
       </li>    
