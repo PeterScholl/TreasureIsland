@@ -56,9 +56,12 @@
    } else {
       console_log( "Opened database successfully");
    }
- 
-    if (!changeToClientID($_SESSION["clientid"])) {
-      setClientIDUndInselTyp();
+
+   //Client registrieren
+    if (!changeToClientID($_SESSION["clientid"])) { //war nicht schon registriert
+      if (!setClientIDUndInselTyp()) { //Registrierung fehlgeschlagen
+        $message_err = "Client konnte nicht angemeldet werden, evtl. maximale Anzahl (".MAXCLIENTS.") überschritten...";
+      }
     }
     
     //ab hier sollte ein Inseltyp bekannt sein
@@ -67,11 +70,14 @@
    
  
     
-        // Processing get-data when form is submitted
+    // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       if (isset($_GET["neueBK"])) { //hier soll eine neue Bordkarte erzeugt werden
-        $bknr = gibNeueBordkartenNummer();
-        $message_info = "Neue Bordkarte mit der Nummer ".$bknr." erstellt - du befindest dich auf Pirates' Island";
+        if ($bknr = gibNeueBordkartenNummer()) {
+          $message_info = "Neue Bordkarte mit der Nummer ".$bknr." erstellt - du befindest dich auf Pirates' Island";
+        } else { //Neue Bordkarte konnte nicht erstellt werden
+          $message_err = "Erstellen einer neuen Bordkarte nicht möglich - evtl. Maximum (".MAXBK.") überschritten";
+        }
       } 
       if (isset($_GET["bordkarte"])) { //Pirat befindet sich hier
         $bknr = trim(filter_input(INPUT_GET, 'bordkarte', FILTER_VALIDATE_INT));
@@ -124,12 +130,11 @@
           $message_err = "Änderung der Inselnummer nicht erlaubt";
         }
       }
-      if (isset($_GET["newClientID"])) { //Neue ClientID erzeugen
-        if (isEnabled("allowMultipClientsPerIP")) {
-          generateExtraClientID();
+      if (isset($_GET["neueClientID"])) { //Neue ClientID erzeugen
+        if (isEnabled("allowMultipClientsPerIP") && generateExtraClientID()) {
           $message_info = "Neue Client-ID erzeugt";
         } else {
-          $message_err = "Neue Client-ID erzeugen - nicht erlaubt";
+          $message_err = "Neue Client-ID erzeugen - nicht erlaubt, evtl. Maximum (".MAXCLIENTS.") überschritten...";
         }        
       }
       if (isset($_GET["preferredClientID"])) { //zu anderer ClientID-wechseln wenn möglich

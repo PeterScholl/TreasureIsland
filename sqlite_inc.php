@@ -43,8 +43,11 @@
     return $inselnr;    
   }
   
-  function gibBildName(int $inseltyp) {
+  function gibBildName($inseltyp) {
     global $db;
+    if (!is_int($inseltyp)) {
+      return "schiff.jpg";
+    }
     //Name des Bildes ermitteln
     $sql = "select bilddatei from inseln where inselnr=".$inseltyp.";";
     console_log("SQL: ".$sql);
@@ -55,8 +58,8 @@
       return $bildname;
     } else { // nicht gefunden
       console_log("Bildname nicht gefunden?!");
-      //TODO: abbrechen - wie?
-      return null;
+      //Mit unsinnigem Bild abgebrochen - sinnvoll?
+      return "schiff.jpg";
     }
   }
 
@@ -98,23 +101,9 @@
           $_SESSION["inseltyp"]=$row['inseltyp'];
           console_log("clientid: ".$_SESSION["clientid"]." inseltyp: ".$_SESSION["inseltyp"]);
         } else { // nicht gefunden
-          //TODO: Prüfen ob zu viele Clients in der letzten Zeit (Minute, Stunde, 5 Minuten... ?) erstellt wurden
-          $_SESSION["inseltyp"]=gibInselNr();
-          $sql = "INSERT INTO clients (session_id, inseltyp, ipaddr, lastedited, created) VALUES ".
-          "('".session_id()."',".$_SESSION["inseltyp"].",'".getUserIpAddr()."',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
-          console_log("SQL: ".$sql);
-          if($db->exec($sql)) {
-            console_log("Insel registriert");
-          } else {
-            console_log("Eintrag nicht erfolgt");
-            console_log("Fehler: ".$db->lastErrorMsg);
-          }
-          $sql = "select rowid from clients where session_id='".session_id()."';";
-          console_log("SQL: ".$sql);
-          if($res=$db->querySingle($sql)) {
-            $_SESSION["clientid"]=$res;
-          }
-        }  
+          return generateExtraClientID();
+        }
+        return true;  
   }
   
   //gibt alle zulässigen Client-IDs als Array zu dieser Session-ID
@@ -136,7 +125,17 @@
   //erzeugt zu dieser Session-ID eine neue Client-ID
   function generateExtraClientID() {
     global $db;
-    //TODO: Prüfen ob zu viele Clients in der letzten Zeit (Minute, Stunde, 5 Minuten... ?) erstellt wurden
+    //Prüfen ob zu viele Clients in der letzten Zeit (Minute, Stunde, 5 Minuten... ?) erstellt wurden
+    if (CHECKLIMITS) {
+      $sql = "select count(*) as anz from clients;";
+      console_log("SQL: ".$sql);
+      if($res=$db->querySingle($sql)) {
+        console_log("Result: ".$res);
+        if ($res>MAXCLIENTS) {
+          return false;
+        }
+      }
+    }    
     $_SESSION["inseltyp"]=gibInselNr();
     $sql = "INSERT INTO clients (session_id, inseltyp, ipaddr, lastedited, created) VALUES ".
     "('".session_id()."',".$_SESSION["inseltyp"].",'".getUserIpAddr()."',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
@@ -151,7 +150,8 @@
     console_log("SQL: ".$sql);
     if($res=$db->querySingle($sql)) {
       $_SESSION["clientid"]=$res;
-    }    
+    }
+    return true;    
   }
   
   //prüft ob in den Optionen gewisse Dinge erlaubt sind
@@ -176,12 +176,15 @@
         $anz_bk=$res;
       }
       console_log("Es gibt ".$anz_bk." Bordkarten");
+      if ($anz_bk > MAXBK) { // Zu viele Bordkarten
+        return false;
+      }
       $bknr = -1;
       do {
-        $bknr = rand(1234,1912+10*$anzbk);
-        $sql = "select count(*) from piraten;";
+        $bknr = rand(1234,8912+$anz_bk+MAXBK);
+        $sql = "select rowid from piraten where bordcardnr=".$bknr.";";
         console_log("SQL: ".$sql);
-      } while (false); // while(!$res=$db->querySingle($sql));
+      } while($res=$db->querySingle($sql));
       //in Datenbank eintragen
       $sql = "INSERT INTO piraten (bordcardnr, aktinsel, letzteInsel, tour, letzteFahrtZeit, erzeugt) VALUES ".
       "('".$bknr."','1','-1','',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
