@@ -6,6 +6,20 @@
     }
   }
   $db = new MyDB();
+  
+  function getUserIpAddr(){
+    if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+        //ip from share internet
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        //ip pass from proxy
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }else{
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+  }
+  
   //alle Datenbankoperationen sollten hier als Funktion deklariert sein, so dass man 
   //diese für eine MySQL-Version austauschen könnte
   
@@ -63,8 +77,8 @@
         } else { // nicht gefunden
           //TODO: Prüfen ob zu viele Clients in der letzten Zeit (Minute, Stunde, 5 Minuten... ?) erstellt wurden
           $_SESSION["inseltyp"]=gibInselNr();
-          $sql = "INSERT INTO clients (session_id, inseltyp, lastedited, created) VALUES ".
-          "('".session_id()."',".$_SESSION["inseltyp"].",strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
+          $sql = "INSERT INTO clients (session_id, inseltyp, ipaddr, lastedited, created) VALUES ".
+          "('".session_id()."',".$_SESSION["inseltyp"].",'".getUserIpAddr()."',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
           console_log("SQL: ".$sql);
           if($db->exec($sql)) {
             console_log("Insel registriert");
@@ -186,7 +200,7 @@
   // clients
   if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='clients';"))) {
     console_log("Tabelle clients existiert nicht!");
-    $sql = "CREATE TABLE clients (session_id TEXT, inseltyp INTEGER, lastedited TEXT, created TEXT);";
+    $sql = "CREATE TABLE clients (session_id TEXT, inseltyp INTEGER, ipaddr TEXT, lastedited TEXT, created TEXT);";
     $ret = $db->exec($sql);
     if(!$ret){
         echo $db->lastErrorMsg();
