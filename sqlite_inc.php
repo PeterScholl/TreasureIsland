@@ -220,6 +220,7 @@
     console_log("SQL: ".$sql);
     if($res=$db->querySingle($sql)) {
       $zielinsel=$res;
+      $arr['ziel']=$zielinsel;
     } else {
       $arr['message']="Fehler! Dieses Schiff (".$schiff.") gibt es nicht !";
       return $arr;

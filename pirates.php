@@ -95,6 +95,9 @@
               $routenInfo = gibRoutenInfo($bknr,$schiff,$_SESSION["inseltyp"]);
               if ($routenInfo['valid']) {
                 $message_info = $routenInfo['message'];
+                if ($routenInfo['ziel']==7) { //Schatzinsel erreicht
+                  $schatz_gefunden=true;
+                }
               } else {
                 $message_err = $routenInfo['message'];
               }
@@ -102,6 +105,8 @@
           } else { // Pirat befindet sich auf der falschen Insel
             if ($piratenInfo['letzteInsel']==-1) {
               $message_err = "Du bist nicht auf dieser Insel! Du befindest dich auf ".gibInselName($piratenInfo['aktInsel'])."!";
+            } else if ($piratenInfo['aktInsel']==7) {
+              $schatz_gefunden = true;
             } else {
               $message_err = "Du bist nicht auf dieser Insel! Du bist von ".gibInselName($piratenInfo['letzteInsel'])." nach ".gibInselName($piratenInfo['aktInsel'])." gefahren!";            
             }
@@ -158,6 +163,14 @@
 
 
 <body>
+  
+<?php if (($schatz_gefunden)): ?>
+<script>
+$(document).ready(function(){
+    $("#successModal").modal();
+});
+</script>
+<?php endif ?>
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
@@ -171,13 +184,13 @@
       <?php
       if (isEnabled("allowToChangeIsland")):?>
       <li class="nav-item ml-2">
-        <a class="nav-link" href="?decInselNr"><</a>
+        <a class="nav-link" href="?decInselNr">-</a>
       </li>
       <span class="navbar-text">
         Inseltyp
       </span>
       <li class="nav-item mr-2">
-        <a class="nav-link" href="?incInselNr">></a>
+        <a class="nav-link" href="?incInselNr">+</a>
       </li>
       <?php endif ?>
       <?php
@@ -263,6 +276,30 @@
   include("footer.html");
 ?>
 
+<div class="modal" id="successModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Du hast es geschafft!</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <img src="./images/trea.jpg" class="img-fluid mx-auto d-block"></img>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-dismiss="modal">Schliessen</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="infoModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -292,7 +329,7 @@
 
       <!-- Modal footer -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-info" data-dismiss="modal">Schliessen</button>
+        <button type="button" class="btn btn-important" data-dismiss="modal">Schliessen</button>
       </div>
 
     </div>
