@@ -26,14 +26,18 @@
    
     //Funktionen für Log-auf die Konsole
     function console_log_json( $data ){
+      if (DEBUG) {
         echo '<script>';
         echo 'console.log('. json_encode( $data ) .')';
         echo '</script>';
+      }
     }
     function console_log( $data ){
-      echo '<script>';
-      echo 'console.log("'. $data .'")';
-      echo '</script>';
+      if (DEBUG) {
+        echo '<script>';
+        echo 'console.log("'. $data .'")';
+        echo '</script>';
+      }
     }
     // für Testzwecke unset session variable
     //unset($_SESSION["clientid"]);
@@ -195,6 +199,9 @@
       <li class="nav-item">
         <a class="nav-link" href="admin.php">Admin</a>
       </li>    
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="modal" href="#infoModal">Info</a>
+      </li>          
     </ul>
   </div>  
   <a class="navbar-brand ml-auto" href="#">Treasure-Island</a><span class="badge badge-light"><?php echo 'Client-ID:'.$_SESSION["clientid"]; ?></span>
@@ -218,7 +225,7 @@
   ?>
   <div class="row">
     <div class="col-sm-4 mx-auto">
-      <h5>Du befindest dich auf:</h5>
+      <h5>Dies ist der Hafen von:</h5>
       <?php
         echo "<img src=\"./images/".gibBildName($_SESSION['inseltyp'])."\" class=\"img-fluid mx-auto d-block\"></img>";
       ?>
@@ -247,6 +254,7 @@
     </div>
   </div>
 </div>
+
 <div class="container m-3">
   &nbsp;
 </div>
@@ -254,6 +262,42 @@
 <?php
   include("footer.html");
 ?>
+
+<div class="modal fade" id="infoModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Information zu endliche Automaten mit Treasure Island</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        Die Piraten haben eine Bordkarte mit einer Bordkartennummer und befinden sich auf Pirates' Island. Sobald sie im Hafen von
+        Pirates' Island ihre Bordkartennummer eingeben und diese als gültig erkannt wird, können Sie ein Schiff (A oder B) wählen,
+        mit dem sie zu einer bestimmten anderen Insel fahren. Dort geht die Reise dann weiter... <br>
+        Ziel ist es Treasure Island zu erreichen und den Schatz zu heben ;-)<br><br>
+        Zur Umsetzung soll auf mehreren Rechnern die Webseite gestartet werden - der Server vergibt automatisch die Inselnamen an
+        die Clients so dass von allen Inseln (insgesamt 6) in etwa gleich viele vorhanden sind. Idealerweise notieren sich die 
+        SchülerInnen (Piraten) auf einer (Bord-)Karte ihre Bordkartennummer, das jeweils gewählte Schiff und evtl. die jeweils 
+        aktuelle Insel, bis sie am Ziel Treasure Island angekommen sind.<br>
+        Vorlagen hierzu gibt es bei Computer-Science-Unplugged (von wo auch die Bilder stammen)<br>
+        Der/die Admin kann ggf. Bordkarten löschen, Clients löschen oder auch alle Tabellen zurücksetzen.<br>
+        Der Wechsel von Inseltyp oder mehreren Clients auf einem Rechner ist nur für den Sonderfall, dass z.B. nur wenige Rechner zur 
+        Verfügung stehen oder die SchülerInnen wegen einer Pandemie nicht durcheinander laufen dürfen, vorgesehen.<br><br>
+        Viel Spaß beim Reisen!        
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Schliessen</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

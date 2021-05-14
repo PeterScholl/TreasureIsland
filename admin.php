@@ -1,6 +1,6 @@
 <?php
     //debug-Optionen
-   ini_set('display_errors', 1);
+   //ini_set('display_errors', 1);
    ini_set('log_errors', 1);
    ini_set('error_log', './ERROR.LOG');
    error_reporting(E_ALL & ~E_NOTICE);
@@ -106,12 +106,6 @@ EOF;
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <style>
-  .fakeimg {
-    height: 200px;
-    background: #aaa;
-  }
-  </style>
 </head>
 <body>
 
@@ -143,7 +137,6 @@ EOF;
   <div class="row">
     <div class="col-sm-4">
       <h3>Admin Menu</h3>
-      <p>choose an option</p>
       <ul class="nav nav-pills flex-column">
         <li class="nav-item">
           <a class="nav-link active" href="?logout">Logout</a>
@@ -155,7 +148,7 @@ EOF;
           <a class="nav-link" href="?showtables">Tabellen anzeigen</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
+          <a class="nav-link disabled" href="#">.. to be continued ..</a>
         </li>
       </ul>
       <hr class="d-sm-none">
