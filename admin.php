@@ -1,6 +1,6 @@
 <?php
     //debug-Optionen
-   ini_set('display_errors', 1);
+   //ini_set('display_errors', 1);
    ini_set('log_errors', 1);
    ini_set('error_log', './ERROR.LOG');
    error_reporting(E_ALL & ~E_NOTICE);
@@ -26,6 +26,17 @@
         header("location: adminlogin.php");
         exit;
     }
+    // Process logout before anything else happens
+    if($_SERVER["REQUEST_METHOD"] == "GET") {
+      if(isset($_GET["logout"])) { // should log out
+        $_SESSION = array(); //delete session-variables
+        // Destroy the session.
+        session_destroy();
+        // Redirect to homepage
+        header("location: pirates.php");
+        exit;
+      }
+    }
     
     //Open-and-prepare database
     require_once("sqlite_inc.php");
@@ -33,7 +44,7 @@
    if(!$db) {
       echo $db->lastErrorMsg(); //does this work $db seems to be null
    } else {
-      console_log( "Opened database successfully");
+      //console_log( "Opened database successfully");
    }
    
     
@@ -45,14 +56,7 @@
     
     // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
-      if(isset($_GET["logout"])) { // should log out
-        $_SESSION = array(); //delete session-variables
-        // Destroy the session.
-        session_destroy();
-        // Redirect to homepage
-        header("location: pirates.php");
-        exit;
-      } else if (isset($_GET["deleteSQLtables"])) {
+      if (isset($_GET["deleteSQLtables"])) {
         $sql =<<<EOF
       DROP TABLE inseln;
       DROP TABLE clients;
