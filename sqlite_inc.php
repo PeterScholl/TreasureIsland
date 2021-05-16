@@ -162,14 +162,31 @@
     return true;    
   }
   
+  //Optionen in der Tabelle ändern
+  function changeOptionWithID($rowid) {
+    global $db;
+    $sql = "UPDATE enable_options SET value=1-value WHERE rowid=".$rowid.";";
+    console_log("SQL: ".$sql);
+    if($db->exec($sql)) {
+      console_log("Wert aktualisiert");
+    } else {
+      console_log("Enable_Options nicht aktualisiert");
+      console_log("Fehler: ".$db->lastErrorMsg);
+    }    
+  }
+  
   //prüft ob in den Optionen gewisse Dinge erlaubt sind
   //kann später über die Datenbank erledgit werden
   function isEnabled($string) {
-    if ($string=="allowMultipClientsPerIP") {
-      return true;
+    global $db;
+    if (!ctype_alnum($string)) {
+      die ("Illegal use! - String for SQL-Statement with illegal characters!");
+      return; // String contains non Alphanumeric Symbols
     }
-    if ($string=="allowToChangeIsland") {
-      return true;
+    $sql = "select value from enable_options WHERE name='".$string."';";
+    console_log("SQL: ".$sql);
+    if($res=$db->querySingle($sql)) {
+      return ($res==1);
     }
     return false;
   }
@@ -344,7 +361,32 @@ EOF;
      }
     }
   }
-   
+  
+  // enableoptions -  0 is false - 1 is true
+  if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='enable_options';"))) {
+    console_log("Tabelle enable_options existiert nicht!");
+    $sql = "CREATE TABLE enable_options (name TEXT NOT NULL, value INTEGER DEFAULT 0, description_optional TEXT);";
+    $ret = $db->exec($sql);
+    if(!$ret){
+        echo $db->lastErrorMsg();
+    } else {
+      console_log("Table enable_options created successfully");
+      
+         $sql =<<<EOF
+      INSERT INTO enable_options (name,value,description_optional)
+      VALUES ('allowMultipClientsPerIP', 0,'allows to generate multiple Client-IDs within one Session - needed basically for test purposes');
+      INSERT INTO enable_options (name,value,description_optional)
+      VALUES ('allowToChangeIsland', 1,'allows a client to change the assigned island - needed if pupils cant change physical computers');
+EOF;
+     $ret = $db->exec($sql);
+     if(!$ret) {
+        echo $db->lastErrorMsg();
+     } else {
+        console_log("enable_options eingetragen");
+     }
+    }
+  }
+     
   //Limits prüfen
   if (CHECKLIMITS) {
     // Alle Clients und Bordkarten löschen die älter als MAXTIME sind
