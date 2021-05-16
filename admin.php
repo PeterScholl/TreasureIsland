@@ -1,6 +1,6 @@
 <?php
     //debug-Optionen
-   //ini_set('display_errors', 1);
+   ini_set('display_errors', 1);
    ini_set('log_errors', 1);
    ini_set('error_log', './ERROR.LOG');
    error_reporting(E_ALL & ~E_NOTICE);
@@ -22,7 +22,6 @@
     // Initialize the session
     session_start();
     // Check if the user is logged in, if not then redirect him to login page
-    // TODO - erledigen
     if(!isset($_SESSION["adminloggedin"]) || $_SESSION["adminloggedin"] !== true){
         header("location: adminlogin.php");
         exit;
@@ -32,7 +31,7 @@
     require_once("sqlite_inc.php");
 
    if(!$db) {
-      echo $db->lastErrorMsg();
+      echo $db->lastErrorMsg(); //does this work $db seems to be null
    } else {
       console_log( "Opened database successfully");
    }
@@ -47,12 +46,10 @@
     // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       if(isset($_GET["logout"])) { // should log out
-        $_SESSION = array();
-         
+        $_SESSION = array(); //delete session-variables
         // Destroy the session.
         session_destroy();
-         
-        // Redirect to login page
+        // Redirect to homepage
         header("location: pirates.php");
         exit;
       } else if (isset($_GET["deleteSQLtables"])) {
@@ -68,7 +65,13 @@ EOF;
             $result = "Tabellen gelöscht";
          }
       } else if (isset($_GET["showtables"])) {
-        $showtables=true;
+        $show='tables';
+      } else if (isset($_GET["options"])) {
+        $show='options';
+        if (isset($_GET["changerow"])) {
+          //Change the specified option
+          changeOptionWithID(filter_input(INPUT_GET, 'changerow', FILTER_VALIDATE_INT));
+        }
       }
       
       if (isset($_GET["delrow"])) { //hier soll eine Tabellenzeile gelöscht werden
@@ -148,6 +151,9 @@ EOF;
           <a class="nav-link" href="?showtables">Tabellen anzeigen</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="?options">Optionen</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link disabled" href="#">.. to be continued ..</a>
         </li>
       </ul>
@@ -155,7 +161,7 @@ EOF;
     </div>
     <div class="col-sm-8">
     <?php
-      if ($showtables) {
+      if ($show=='tables') {
         echo "\n";
         //alle Tabellen ermitteln
         $tablesquery = $db->query("SELECT name FROM sqlite_master WHERE type='table';");
@@ -191,7 +197,23 @@ EOF;
           }
         }
         echo "\n";
-      }
+      } else if ($show=='options') {
+        //Optionen aus Tabelle auslesen
+        $sql = "SELECT rowid,* FROM enable_options;";
+        if ($res = $db->query($sql)) {
+          echo "<h4>Optionen einstellen</h4>\n";
+          echo "<div class=\"table-responsive\"><table class=\"table\"><thead><tr>\n";
+          echo "<th>Name</th><th>Wert</th><th>Beschreibung</th>\n";
+          echo "</tr></thead><tbody>\n";
+            while($row = $res->fetchArray(SQLITE3_BOTH)) {
+              echo "<tr><td>".$row['name']."</td>\n";
+              echo "<td><a href=\"?options&changerow=".$row['rowid']."\" class=\"text-important\">".($row['value']==1?"true":"false")."</a></td>\n";
+              echo "<td>".$row['description_optional']."</td>\n";
+              echo "</tr>\n";
+            }
+          echo "</tbody></table></div>\n";
+        }
+      } 
     ?>
     </div>
   </div>
