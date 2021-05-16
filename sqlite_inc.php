@@ -20,6 +20,32 @@
     return $ip;
   }
   
+  //eine bestimmte Tabellenzeile zurückgeben
+  function getSingleTableRow($table, $rowid) {
+    global $db;
+    //console_log("getSingleTableRow(".$table.",".$rowid.")");
+    $stmt = $db->prepare('SELECT rowid,* FROM '.$table.' WHERE rowid=:id');
+    //console_log("Anzahl Parameter in Statement: ".$stmt->paramCount());
+    $stmt->bindValue(':id', $rowid, SQLITE3_INTEGER);
+    $result = $stmt->execute();
+    return $result->fetchArray(SQLITE3_ASSOC);
+  }
+  
+  //einen bestimmten Wert in einer Tabelle ändern
+  function updateTableRow($table, $rowid, $key, $value) {
+    global $db;
+    if (ctype_alnum($key) && ctype_alnum($value)) {
+      $stmt = $db->prepare('UPDATE '.$table.' SET '.$key.'=:value WHERE rowid=:id');
+      //console_log("Anzahl Parameter in Statement: ".$stmt->paramCount());
+      $stmt->bindValue(':id', $rowid, SQLITE3_INTEGER);
+      //$stmt->bindValue(':key', $key, SQLITE3_TEXT);
+      $stmt->bindValue(':value', $value, SQLITE3_TEXT);
+      $result = $stmt->execute();
+    } else {
+      console_log("Unaccepted Values - key: ".$key." value ".$value);
+    }
+  }
+  
   //alle Datenbankoperationen sollten hier als Funktion deklariert sein, so dass man 
   //diese für eine MySQL-Version austauschen könnte
   

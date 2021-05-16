@@ -90,7 +90,26 @@ EOF;
         $sql = "DROP TABLE ".$tablename.";";
         console_log("SQL: ".$sql);
         $db->exec($sql);
-      } 
+      }
+      if (isset($_GET["updaterow"]) && isset($_GET["rowid"]) && isset($_GET["table"])) { 
+        //hier ist eine Tabellenzeile zu aktualisieren
+        //mit prepare lösen
+        foreach (array_keys($_GET) as $key) {
+          if (!in_array($key, ['table','rowid','updaterow'])) {
+            //console_log($key." - wird aktualisiert");
+            updateTableRow($_GET['table'], $_GET['rowid'], $key, $_GET[$key]);
+          }
+        }
+        $show='tables';
+      }
+      if (isset($_GET["changerow"]) && isset($_GET["table"])) {
+        //Änderung einer Tabellenzeile vorbereiten
+        console_log("GET-Befehl - Tabellenzeile ändern");
+        $show='changeTableRow';
+        $rowToChange = getSingleTableRow((filter_input(INPUT_GET, 'table', FILTER_SANITIZE_STRING)),filter_input(INPUT_GET, 'changerow', FILTER_VALIDATE_INT));
+        $tableToChange = (filter_input(INPUT_GET, 'table', FILTER_SANITIZE_STRING));
+        console_log("... in Tabelle: ".$tableToChange." bzw. ".$_GET["table"]);
+      }
     }
      
     // Processing form data when form is submitted
@@ -191,8 +210,10 @@ EOF;
                     echo "<td>";
                     if ($i==0) {
                       echo "<a href=\"?delrow=".$row[0]."&table=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>";
+                      echo "<a href=\"?changerow=".$row[0]."&table=".$name."\">".$row[0]."</a></td>\n";
+                    } else {
+                      echo $row[$i]."</td>\n";
                     }
-                    echo $row[$i]."</td>\n";
                   }		
                   echo "</tr>\n";
                 }
@@ -217,7 +238,35 @@ EOF;
             }
           echo "</tbody></table></div>\n";
         }
-      } 
+      } else if ($show=='changeTableRow') {
+        //Formular erstellen
+        echo "<h4>Tabelle: ".$tableToChange." - Zeile: ".$rowToChange['rowid']."</h4>\n";
+        ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
+            <?php foreach(array_keys($rowToChange) as $key) { 
+              if ($key=='rowid') {
+                echo "<input type=\"hidden\" name=\"rowid\" value=\"".$rowToChange['rowid']."\">";
+              } else { ?>
+            <div class="form-row">
+              <div class="col">
+                <label><?php echo $key; ?></label>
+              </div>
+              <div class="col">
+                <input type="text" name="<?php echo $key; ?>" value="<?php echo $rowToChange[$key]; ?>">
+              </div>
+            </div>
+            <?php }
+            } ?>
+            <div class="form-group">
+              <input type="hidden" name="table" value="<?php echo $tableToChange; ?>">
+              <input type="hidden" name="updaterow" value="<?php echo $rowToChange['rowid']; ?>">
+              <input type="submit" class="btn btn-primary" value="Senden">
+            </div>
+        </form>
+        <?php
+
+        
+      }
     ?>
     </div>
   </div>
