@@ -7,6 +7,9 @@ function console_log( $data ){
 
 // Initialize the session
 session_start();
+
+// config laden - mit Passwort ;-)
+require_once("config.php");
  
 // Check if the user is already logged in, if yes then redirect him to admin page
 if(isset($_SESSION["adminloggedin"]) && $_SESSION["adminloggedin"] === true){
@@ -31,7 +34,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Validate credentials
     if(empty($password_err)){
         //console_log($_POST["password"]);
-							if(trim($_POST["password"])==="hallo"){
+							if(trim($_POST["password"])===ADMINPASS){
 								// Password is correct, so start a new session
 								session_start();
 								

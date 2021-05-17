@@ -6,5 +6,6 @@
   define("MAXCLIENTS", 100); //Maximal zulässige Anzahl von Clients
   define("MAXCLIENTIDS", 6); //Maximal zulässige Anzahl von ClientIDs per Session
   define("MAXBK", 100); //Maximale Anzahl an Bordkarten
+  define("ADMINPASS", "pass"); //Passwort für Adminseite
   
 ?>
