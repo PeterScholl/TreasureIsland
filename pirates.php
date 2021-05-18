@@ -324,12 +324,13 @@ $(document).ready(function(){
         Der/die Admin kann ggf. Bordkarten löschen, Clients löschen oder auch alle Tabellen zurücksetzen.<br>
         Der Wechsel von Inseltyp oder mehreren Clients auf einem Rechner ist nur für den Sonderfall, dass z.B. nur wenige Rechner zur 
         Verfügung stehen oder die SchülerInnen wegen einer Pandemie nicht durcheinander laufen dürfen, vorgesehen.<br><br>
-        Viel Spaß beim Reisen!        
+        Viel Spaß beim Reisen!<br><br>
+        PS: Als erstes brauchst du eine <a href="?neueBK">Bordkarte</a>!        
       </div>
 
       <!-- Modal footer -->
       <div class="modal-footer">
-        <button type="button" class="btn btn-important" data-dismiss="modal">Schliessen</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Schliessen</button>
       </div>
 
     </div>
