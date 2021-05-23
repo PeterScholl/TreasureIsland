@@ -284,13 +284,14 @@ EOF;
         <?php
       } else if ($show=='setbknr') {
         ?>
+        <p>Erzeugen von individuellen Bordkartennummern, die an Sch&uuml;lerInnen herausgegeben werden k&ouml;nnen.<br>
+        30 Nummern sind als (immer gleiches) Beispiel vorgegeben und k&ouml;nnen nat&uuml;rlich ersetzt oder erg&auml;nzt werden.</p>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
           <label for="bordcard_list">Bordkarten-Nummern:</label>
           <div class="form-group">
-            <textarea class="form-control" id="bordcard_list" name="bordcard_list">
-              1124,1131,1160,1204,1302,1318,1326,1380,1399,1407,1422,1456,
-              1497,1512,1543,1577,1644,1656,1681,1731,1749,1756,1817,1875,
-              1880,1894,1912,1945,1971,1986</textarea>
+            <textarea class="form-control" id="bordcard_list" name="bordcard_list" rows="3">1124,1131,1160,1204,1302,1318,1326,1380,1399,1407,1422,1456,
+1497,1512,1543,1577,1644,1656,1681,1731,1749,1756,1817,1875,
+1880,1894,1912,1945,1971,1986</textarea>
           </div>
           <div class="form-group">
             <button class="btn btn-primary" type="submit" name="submitbordcardlist" id="submit">Senden</button>
