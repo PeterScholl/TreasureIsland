@@ -237,16 +237,29 @@
         console_log("SQL: ".$sql);
       } while($res=$db->querySingle($sql));
       //in Datenbank eintragen
-      $sql = "INSERT INTO piraten (bordcardnr, aktinsel, letzteInsel, tour, letzteFahrtZeit, erzeugt) VALUES ".
-      "('".$bknr."','1','-1','',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'));";
-      console_log("SQL: ".$sql);
-      if($db->exec($sql)) {
+      if(bordkartenNummerInDBEintragen($bknr)>=0) {
         console_log("Bordkartennummer registriert");
       } else {
         console_log("Eintrag nicht erfolgt");
         console_log("Fehler: ".$db->lastErrorMsg);
       }
       return $bknr;      
+  }
+  
+  //Trage die übergebene Bordkartennummer in die Datenbank ein
+  //gibt diese bei Erfolg zurück sonst -1
+  function bordkartenNummerInDBEintragen($bknr) {
+    global $db;
+    $stmt = $db->prepare("INSERT INTO piraten (bordcardnr, aktinsel, letzteInsel, tour, letzteFahrtZeit, erzeugt) VALUES ".
+      "(:bknr,'1','-1','',strftime('%Y-%m-%d %H:%M:%S','now'),strftime('%Y-%m-%d %H:%M:%S','now'))");
+    if ($stmt->bindValue(':bknr', $bknr, SQLITE3_INTEGER)) {
+      set_error_handler(function() { /* ignore errors */ });
+      if ($stmt->execute()) { //erfolgreich
+        return $bknr;
+      }
+      restore_error_handler();
+    }
+    return -1; 
   }
   
   //Lässt den Piraten mit der Bordkartennr von der Inselnr
