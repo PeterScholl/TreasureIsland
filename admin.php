@@ -1,9 +1,9 @@
 <?php
-    //debug-Optionen
-   ini_set('display_errors', 1);
-   ini_set('log_errors', 1);
-   ini_set('error_log', './ERROR.LOG');
-   error_reporting(E_ALL & ~E_NOTICE);
+  //debug-Optionen
+  //ini_set('display_errors', 1);
+  ini_set('log_errors', 1);
+  ini_set('error_log', './ERROR.LOG');
+  error_reporting(E_ALL & ~E_NOTICE);
 
   require_once("config.php"); // konfiguration lesen
 
@@ -61,6 +61,7 @@
       DROP TABLE inseln;
       DROP TABLE clients;
       DROP TABLE piraten;
+      DROP TABLE enable_options;
 EOF;
         $ret = $db->exec($sql);
          if(!$ret) {

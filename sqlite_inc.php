@@ -416,6 +416,8 @@ EOF;
       VALUES ('allowMultipClientsPerIP', 0,'allows to generate multiple Client-IDs within one Session - needed basically for test purposes (Default: false)');
       INSERT INTO enable_options (name,value,description_optional)
       VALUES ('allowToChangeIsland', 1,'allows a client to change the assigned island - needed if pupils cant change physical computers (Default: true)');
+      INSERT INTO enable_options (name,value,description_optional)
+      VALUES ('allowBordCardCreation', 1,'allows a pirate to create a bordcard himself (Default: true)');
 EOF;
      $ret = $db->exec($sql);
      if(!$ret) {

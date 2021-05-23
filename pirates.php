@@ -77,7 +77,7 @@
     // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       if (isset($_GET["neueBK"])) { //hier soll eine neue Bordkarte erzeugt werden
-        if ($bknr = gibNeueBordkartenNummer()) {
+        if (isEnabled("allowBordCardCreation") && ($bknr = gibNeueBordkartenNummer())) {
           $message_info = "Neue Bordkarte mit der Nummer ".$bknr." erstellt - du befindest dich auf Pirates' Island";
         } else { //Neue Bordkarte konnte nicht erstellt werden
           $message_err = "Erstellen einer neuen Bordkarte nicht möglich - evtl. Maximum (".MAXBK.") überschritten";
@@ -178,10 +178,13 @@ $(document).ready(function(){
       <li class="nav-item">
         <a class="nav-link" href="pirates.php">Home</a>
       </li>
+      <?php
+      if (isEnabled("allowBordCardCreation")):?>
       <li class="nav-item">
         <a class="nav-link" href="?neueBK">Neue Bordkarte</a>
       </li>
       <?php
+      endif;
       if (isEnabled("allowToChangeIsland")):?>
       <li class="nav-item ml-2">
         <a class="nav-link" href="?decInselNr">-</a>
@@ -192,7 +195,7 @@ $(document).ready(function(){
       <li class="nav-item mr-2">
         <a class="nav-link" href="?incInselNr">+</a>
       </li>
-      <?php endif ?>
+      <?php endif; ?>
       <?php
       if (isEnabled("allowMultipClientsPerIP")):?>
         <!-- Dropdown -->
