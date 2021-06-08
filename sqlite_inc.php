@@ -6,6 +6,8 @@
     }
   }
   $db = new MyDB();
+  $db->busyTimeout(5000);
+  $db->exec("PRAGMA busy_timeout=5000");
   
   function getUserIpAddr(){
     if(!empty($_SERVER['HTTP_CLIENT_IP'])){
