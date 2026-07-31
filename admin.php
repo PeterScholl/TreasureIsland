@@ -76,6 +76,12 @@
         if (isset($_GET["changerow"])) {
           //Change the specified option
           changeOptionWithID(filter_input(INPUT_GET, 'changerow', FILTER_VALIDATE_INT));
+        } else if (isset($_GET["resetoptions"])) {
+          resetOptionsToDefaults();
+          $result = "Optionen auf Standardeinstellungen zurückgesetzt";
+        } else if (isset($_GET["presetprepared"])) {
+          setPresetVorgefertigteBordkarten();
+          $result = "Voreinstellung für vorgefertigte Bordkarten (mehrere Rechner) aktiviert";
         }
       }
       
@@ -309,6 +315,8 @@
             echo "</tr>\n";
           }
         echo "</tbody></table></div>\n";
+        echo "<a href=\"?options&resetoptions\" class=\"btn btn-secondary mr-2\">Standardeinstellungen</a>\n";
+        echo "<a href=\"?options&presetprepared\" class=\"btn btn-secondary\">Vorgefertigte Bordkarten - mehrere Rechner (mind 7)</a>\n";
       } else if ($show=='changeTableRow') {
         //Formular erstellen
         echo "<h4>Tabelle: ".$tableToChange." - Zeile: ".$rowToChange['rowid']."</h4>\n";

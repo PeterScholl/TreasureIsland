@@ -221,6 +221,31 @@
     }    
   }
   
+  //setzt eine Option (nach Name) auf einen bestimmten Wert (Admin-Funktion)
+  function setOptionByName($name, $value) {
+    global $db;
+    $stmt = $db->prepare('UPDATE enable_options SET value=:value WHERE name=:name');
+    $stmt->bindValue(':value', $value, SQLITE3_INTEGER);
+    $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+    console_log("Option ".$name." auf ".$value." gesetzt");
+    return $stmt->execute();
+  }
+
+  //setzt alle Optionen auf ihre Standardwerte zurück (Admin-Funktion)
+  function resetOptionsToDefaults() {
+    setOptionByName('allowMultipClientsPerIP', 0);
+    setOptionByName('allowToChangeIsland', 1);
+    setOptionByName('allowBordCardCreation', 1);
+  }
+
+  //Voreinstellung für vorgefertigte Bordkarten auf mehreren Rechnern (Admin-Funktion):
+  //Bordkartenerzeugung und Inselwechsel im Client werden deaktiviert
+  function setPresetVorgefertigteBordkarten() {
+    setOptionByName('allowBordCardCreation', 0);
+    setOptionByName('allowToChangeIsland', 0);
+    setOptionByName('allowMultipClientsPerIP', 0);
+  }
+
   //prüft ob in den Optionen gewisse Dinge erlaubt sind
   //kann später über die Datenbank erledgit werden
   function isEnabled($string) {
