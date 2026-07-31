@@ -176,7 +176,7 @@ $(document).ready(function(){
   <div class="collapse navbar-collapse" id="collapsibleNavbar">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" href="pirates.php">Home</a>
+        <a class="nav-link" href="<?php echo HOME_URL; ?>">Home</a>
       </li>
       <?php
       if (isEnabled("allowBordCardCreation")):?>
@@ -220,7 +220,7 @@ $(document).ready(function(){
       </li>          
     </ul>
   </div>  
-  <a class="navbar-brand ml-auto" href="#">Treasure-Island</a><span class="badge badge-light"><?php echo 'Client-ID:'.$_SESSION["clientid"]; ?></span>
+  <a class="navbar-brand ml-auto" href="<?php echo HOME_URL; ?>">Treasure-Island</a><span class="badge badge-light"><?php echo 'Client-ID:'.$_SESSION["clientid"]; ?></span>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
     <span class="navbar-toggler-icon"></span>
   </button>
