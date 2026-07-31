@@ -354,6 +354,32 @@
     return "unbekannte Insel";
   }
 
+  //gibt alle Inseln (Nummer und Name) zurück, sortiert nach Nummer (Admin-Funktion)
+  function getAllInseln() {
+    global $db;
+    $sql = "SELECT inselnr, name FROM inseln ORDER BY inselnr;";
+    console_log("SQL: ".$sql);
+    $res = $db->query($sql);
+    $inseln = array();
+    while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+      array_push($inseln, $row);
+    }
+    return $inseln;
+  }
+
+  //gibt alle Clients (rowid und aktueller Inseltyp) zurück, sortiert nach rowid (Admin-Funktion)
+  function getAllClients() {
+    global $db;
+    $sql = "SELECT rowid, inseltyp FROM clients ORDER BY rowid;";
+    console_log("SQL: ".$sql);
+    $res = $db->query($sql);
+    $clients = array();
+    while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+      array_push($clients, $row);
+    }
+    return $clients;
+  }
+
   //löscht alle Anwendungstabellen (für Admin-Reset)
   function dropAllTables() {
     global $db;

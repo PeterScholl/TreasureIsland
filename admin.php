@@ -67,6 +67,8 @@
         $show='tables';
       } else if (isset($_GET["activepirates"])) {
         $show='activepirates';
+      } else if (isset($_GET["setislands"])) {
+        $show='setislands';
       } else if (isset($_GET["setbknr"])) {
         $show='setbknr';
       } else if (isset($_GET["options"])) {
@@ -122,7 +124,20 @@
           }
         }
         $show='tables';
-      }        
+      }
+      if (isset($_POST["submitislands"])) { //Inseltypen für Clients wurden gesetzt
+        foreach ($_POST as $key => $value) {
+          if (strpos($key, 'inseltyp_') === 0) {
+            $clientid = filter_var(substr($key, strlen('inseltyp_')), FILTER_VALIDATE_INT);
+            $neueInselNr = filter_var($value, FILTER_VALIDATE_INT);
+            if ($clientid !== false && $neueInselNr !== false) {
+              inselNrVonClientSetzen($clientid, $neueInselNr);
+            }
+          }
+        }
+        $result = "Inseltypen aktualisiert - bitte geänderte Clients einmal neu laden";
+        $show='setislands';
+      }
     }
 
     
@@ -179,6 +194,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="?activepirates">Aktive Piraten anzeigen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="?setislands">Inseltypen setzen</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="?setbknr">Bordkarten erstellen</a>
@@ -244,6 +262,39 @@
             echo "</tr>\n";
           }
         echo "</tbody></table></div>\n";
+      } else if ($show=='setislands') {
+        //Inseltyp für alle Clients setzen
+        $clients = getAllClients();
+        $inseln = getAllInseln();
+        echo "<h4>Inseltyp für Clients setzen</h4>\n";
+        if (empty($clients)) {
+          echo "<p>Keine Clients vorhanden.</p>\n";
+        } else {
+        ?>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+          <div class="table-responsive"><table class="table"><thead><tr>
+          <th>Client-ID</th><th>Insel</th>
+          </tr></thead><tbody>
+          <?php foreach ($clients as $client) { ?>
+            <tr>
+              <td><?php echo $client['rowid']; ?></td>
+              <td>
+                <select class="form-control" name="inseltyp_<?php echo $client['rowid']; ?>">
+                  <?php foreach ($inseln as $insel) { ?>
+                    <option value="<?php echo $insel['inselnr']; ?>" <?php echo ($insel['inselnr']==$client['inseltyp']) ? 'selected' : ''; ?>><?php echo $insel['name']; ?> (<?php echo $insel['inselnr']; ?>)</option>
+                  <?php } ?>
+                </select>
+              </td>
+            </tr>
+          <?php } ?>
+          </tbody></table></div>
+          <div class="form-group">
+            <button type="reset" class="btn btn-secondary">Reset</button>
+            <button type="submit" name="submitislands" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+        <?php
+        }
       } else if ($show=='options') {
         //Optionen aus Tabelle auslesen
         $options = getOptions();
