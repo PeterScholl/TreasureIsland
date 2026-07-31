@@ -426,6 +426,20 @@ EOF;
     return array('columns' => $columns, 'rows' => $rows);
   }
 
+  //gibt alle Piraten mit aktueller Insel (Name+Nummer) und zurückgelegter Tour zurück (Admin-Funktion)
+  function getActivePiraten() {
+    global $db;
+    $sql = "SELECT bordcardnr, aktInsel, tour FROM piraten ORDER BY bordcardnr;";
+    console_log("SQL: ".$sql);
+    $res = $db->query($sql);
+    $piraten = array();
+    while ($row = $res->fetchArray(SQLITE3_ASSOC)) {
+      $row['aktInselName'] = gibInselName($row['aktInsel']);
+      array_push($piraten, $row);
+    }
+    return $piraten;
+  }
+
   //gibt alle Optionen aus der Tabelle enable_options zurück (Admin-Funktion)
   function getOptions() {
     global $db;

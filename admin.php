@@ -65,6 +65,8 @@
          }
       } else if (isset($_GET["showtables"])) {
         $show='tables';
+      } else if (isset($_GET["activepirates"])) {
+        $show='activepirates';
       } else if (isset($_GET["setbknr"])) {
         $show='setbknr';
       } else if (isset($_GET["options"])) {
@@ -176,6 +178,9 @@
           <a class="nav-link" href="?showtables">Tabellen anzeigen</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="?activepirates">Aktive Piraten anzeigen</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="?setbknr">Bordkarten erstellen</a>
         </li>
         <li class="nav-item">
@@ -225,6 +230,20 @@
           }
         }
         echo "\n";
+      } else if ($show=='activepirates') {
+        //aktive Piraten mit aktueller Insel und Tour anzeigen
+        $piraten = getActivePiraten();
+        echo "<h4>Aktive Piraten</h4>\n";
+        echo "<div class=\"table-responsive\"><table class=\"table\"><thead><tr>\n";
+        echo "<th>Bordkarte</th><th>Aktuelle Insel</th><th>Weg (Tour)</th>\n";
+        echo "</tr></thead><tbody>\n";
+          foreach ($piraten as $row) {
+            echo "<tr><td>".$row['bordcardnr']."</td>\n";
+            echo "<td>".$row['aktInselName']." (".$row['aktInsel'].")</td>\n";
+            echo "<td>".$row['tour']."</td>\n";
+            echo "</tr>\n";
+          }
+        echo "</tbody></table></div>\n";
       } else if ($show=='options') {
         //Optionen aus Tabelle auslesen
         $options = getOptions();
