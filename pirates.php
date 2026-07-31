@@ -321,7 +321,7 @@ $(document).ready(function(){
         Ziel ist es Treasure Island zu erreichen und den Schatz zu heben ;-)<br><br>
         Zur Umsetzung soll auf mehreren Rechnern die Webseite gestartet werden - der Server vergibt automatisch die Inselnamen an
         die Clients so dass von allen Inseln (insgesamt 6) in etwa gleich viele vorhanden sind. Idealerweise notieren sich die 
-        SchülerInnen (Piraten) auf einer (Bord-)Karte ihre Bordkartennummer, das jeweils gewählte Schiff und evtl. die jeweils 
+        SchülerInnen (Piraten) auf einer <a href="addon/Treasure%20Island%20%28Student%20map%20-%20a4%29.pdf" target="_blank">(Bord-)Karte</a> ihre Bordkartennummer, das jeweils gewählte Schiff und evtl. die jeweils
         aktuelle Insel, bis sie am Ziel Treasure Island angekommen sind.<br>
         Vorlagen hierzu gibt es bei Computer-Science-Unplugged (von wo auch die Bilder stammen)<br>
         Der/die Admin kann ggf. Bordkarten löschen, Clients löschen oder auch alle Tabellen zurücksetzen.<br>
