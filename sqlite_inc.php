@@ -636,7 +636,8 @@ EOF;
     }
 
     // Zum Datenschutz: sobald durch die Bereinigung keine Clients mehr übrig sind,
-    // auch die Einstellungen (enable_options) auf den Standard zurücksetzen
+    // die komplette Anwendung zurücksetzen (Einstellungen und Insel-Tabelle auf Standard,
+    // clients/piraten sind an dieser Stelle ohnehin schon leer)
     if ($clientsVorher > 0) {
       $clientsNachher = (int)$db->querySingle("SELECT count(*) FROM clients;");
       if ($clientsNachher == 0) {
