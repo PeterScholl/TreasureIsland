@@ -22,9 +22,23 @@
     return $ip;
   }
   
+  //prüft, ob $table eine tatsächlich existierende Tabelle ist - schützt vor
+  //SQL-Injection über Tabellennamen, die nicht als Bind-Parameter übergeben werden können
+  function isKnownTable($table) {
+    global $db;
+    $stmt = $db->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=:name");
+    $stmt->bindValue(':name', $table, SQLITE3_TEXT);
+    $result = $stmt->execute();
+    return $result->fetchArray(SQLITE3_ASSOC) !== false;
+  }
+
   //eine bestimmte Tabellenzeile zurückgeben
   function getSingleTableRow($table, $rowid) {
     global $db;
+    if (!isKnownTable($table)) {
+      console_log("Unbekannte Tabelle: ".$table);
+      return false;
+    }
     //console_log("getSingleTableRow(".$table.",".$rowid.")");
     $stmt = $db->prepare('SELECT rowid,* FROM '.$table.' WHERE rowid=:id');
     //console_log("Anzahl Parameter in Statement: ".$stmt->paramCount());
@@ -32,10 +46,14 @@
     $result = $stmt->execute();
     return $result->fetchArray(SQLITE3_ASSOC);
   }
-  
+
   //einen bestimmten Wert in einer Tabelle ändern
   function updateTableRow($table, $rowid, $key, $value) {
     global $db;
+    if (!isKnownTable($table)) {
+      console_log("Unbekannte Tabelle: ".$table);
+      return;
+    }
     if (ctype_alnum($key) && ctype_alnum($value)) {
       $stmt = $db->prepare('UPDATE '.$table.' SET '.$key.'=:value WHERE rowid=:id');
       //console_log("Anzahl Parameter in Statement: ".$stmt->paramCount());
@@ -47,7 +65,7 @@
       console_log("Unaccepted Values - key: ".$key." value ".$value);
     }
   }
-  
+
   //alle Datenbankoperationen sollten hier als Funktion deklariert sein, so dass man 
   //diese für eine MySQL-Version austauschen könnte
   
@@ -333,9 +351,94 @@
     if($res=$db->querySingle($sql)) {
       return $res;
     }
-    return "unbekannte Insel";  
+    return "unbekannte Insel";
   }
-    
+
+  //löscht alle Anwendungstabellen (für Admin-Reset)
+  function dropAllTables() {
+    global $db;
+    $sql =<<<EOF
+    DROP TABLE inseln;
+    DROP TABLE clients;
+    DROP TABLE piraten;
+    DROP TABLE enable_options;
+EOF;
+    return $db->exec($sql);
+  }
+
+  //löscht eine einzelne Zeile aus einer Tabelle (Admin-Funktion)
+  function deleteTableRow($table, $rowid) {
+    global $db;
+    if (!isKnownTable($table)) {
+      console_log("Unbekannte Tabelle: ".$table);
+      return false;
+    }
+    $stmt = $db->prepare('DELETE FROM '.$table.' WHERE rowid=:id');
+    $stmt->bindValue(':id', $rowid, SQLITE3_INTEGER);
+    console_log("DELETE FROM ".$table." WHERE rowid=".$rowid);
+    return $stmt->execute();
+  }
+
+  //löscht eine ganze Tabelle (Admin-Funktion)
+  function dropTable($table) {
+    global $db;
+    if (!isKnownTable($table)) {
+      console_log("Unbekannte Tabelle: ".$table);
+      return false;
+    }
+    $sql = "DROP TABLE ".$table.";";
+    console_log("SQL: ".$sql);
+    return $db->exec($sql);
+  }
+
+  //gibt die Namen aller vorhandenen Tabellen zurück
+  function getAllTableNames() {
+    global $db;
+    $tablesquery = $db->query("SELECT name FROM sqlite_master WHERE type='table';");
+    $tables = array();
+    while ($table = $tablesquery->fetchArray(SQLITE3_ASSOC)) {
+      array_push($tables, $table['name']);
+    }
+    return $tables;
+  }
+
+  //gibt Spaltennamen und alle Zeilen (inkl. rowid) einer Tabelle zurück (Admin-Funktion)
+  function getTableContent($table) {
+    global $db;
+    if (!isKnownTable($table)) {
+      console_log("Unbekannte Tabelle: ".$table);
+      return null;
+    }
+    $sql = "SELECT rowid,* FROM ".$table.";";
+    console_log("SQL: ".$sql);
+    $res = $db->query($sql);
+    if (!$res) {
+      return null;
+    }
+    $columns = array();
+    for ($i = 0; $i < $res->numColumns(); $i++) {
+      array_push($columns, $res->columnName($i));
+    }
+    $rows = array();
+    while ($row = $res->fetchArray(SQLITE3_NUM)) {
+      array_push($rows, $row);
+    }
+    return array('columns' => $columns, 'rows' => $rows);
+  }
+
+  //gibt alle Optionen aus der Tabelle enable_options zurück (Admin-Funktion)
+  function getOptions() {
+    global $db;
+    $sql = "SELECT rowid,* FROM enable_options;";
+    console_log("SQL: ".$sql);
+    $res = $db->query($sql);
+    $options = array();
+    while ($row = $res->fetchArray(SQLITE3_BOTH)) {
+      array_push($options, $row);
+    }
+    return $options;
+  }
+
 
 
   // prüfen ob tabellen existieren

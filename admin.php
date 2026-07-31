@@ -57,13 +57,7 @@
     // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       if (isset($_GET["deleteSQLtables"])) {
-        $sql =<<<EOF
-      DROP TABLE inseln;
-      DROP TABLE clients;
-      DROP TABLE piraten;
-      DROP TABLE enable_options;
-EOF;
-        $ret = $db->exec($sql);
+        $ret = dropAllTables();
          if(!$ret) {
             $result_err = $db->lastErrorMsg();
          } else {
@@ -84,15 +78,11 @@ EOF;
       if (isset($_GET["delrow"])) { //hier soll eine Tabellenzeile gelöscht werden
         $rowid = filter_input(INPUT_GET, 'delrow', FILTER_VALIDATE_INT);
         $tablename = trim(filter_input(INPUT_GET, 'table', FILTER_SANITIZE_STRING));
-        $sql = "DELETE FROM ".$tablename." WHERE rowid=".$rowid.";";
-        console_log("SQL: ".$sql);
-        $db->exec($sql);
-      } 
+        deleteTableRow($tablename, $rowid);
+      }
       if (isset($_GET["deltable"])) { //hier soll eine Tabelle gelöscht werden
         $tablename = trim(filter_input(INPUT_GET, 'deltable', FILTER_SANITIZE_STRING));
-        $sql = "DROP TABLE ".$tablename.";";
-        console_log("SQL: ".$sql);
-        $db->exec($sql);
+        dropTable($tablename);
       }
       if (isset($_GET["updaterow"]) && isset($_GET["rowid"]) && isset($_GET["table"])) { 
         //hier ist eine Tabellenzeile zu aktualisieren
@@ -205,26 +195,21 @@ EOF;
       if ($show=='tables') {
         echo "\n";
         //alle Tabellen ermitteln
-        $tablesquery = $db->query("SELECT name FROM sqlite_master WHERE type='table';");
-        $tables = array();
+        $tables = getAllTableNames();
 
-        while ($table = $tablesquery->fetchArray(SQLITE3_ASSOC)) {
-          array_push($tables,$table['name']);
-        }
-        
         if (!empty($tables)) {
           foreach($tables as $name) {
-            $sql = "SELECT rowid,* FROM ".$name . ";";
-            if ($res = $db->query($sql)) {
+            $content = getTableContent($name);
+            if ($content) {
               echo "<h4><a href=\"?deltable=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>Tabelle ".$name."</h4>\n";
               echo "<div class=\"table-responsive\"><table class=\"table\"><thead><tr>\n";
-            		for($i = 0; $i<$res->numColumns(); $i++) {
-                  echo "<th>".$res->columnName($i)."</th>\n";			
+                foreach ($content['columns'] as $column) {
+                  echo "<th>".$column."</th>\n";
                 }
               echo "</tr></thead><tbody>\n";
-                while($row = $res->fetchArray(SQLITE3_NUM)) {
+                foreach ($content['rows'] as $row) {
                   echo "<tr>";
-                  for($i = 0; $i<$res->numColumns(); $i++) {
+                  for($i = 0; $i<count($row); $i++) {
                     echo "<td>";
                     if ($i==0) {
                       echo "<a href=\"?delrow=".$row[0]."&table=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>";
@@ -232,7 +217,7 @@ EOF;
                     } else {
                       echo $row[$i]."</td>\n";
                     }
-                  }		
+                  }
                   echo "</tr>\n";
                 }
               echo "</tbody></table></div>\n";
@@ -242,20 +227,18 @@ EOF;
         echo "\n";
       } else if ($show=='options') {
         //Optionen aus Tabelle auslesen
-        $sql = "SELECT rowid,* FROM enable_options;";
-        if ($res = $db->query($sql)) {
-          echo "<h4>Optionen einstellen</h4>\n";
-          echo "<div class=\"table-responsive\"><table class=\"table\"><thead><tr>\n";
-          echo "<th>Name</th><th>Wert</th><th>Beschreibung</th>\n";
-          echo "</tr></thead><tbody>\n";
-            while($row = $res->fetchArray(SQLITE3_BOTH)) {
-              echo "<tr><td>".$row['name']."</td>\n";
-              echo "<td><a href=\"?options&changerow=".$row['rowid']."\" class=\"text-important\">".($row['value']==1?"true":"false")."</a></td>\n";
-              echo "<td>".$row['description_optional']."</td>\n";
-              echo "</tr>\n";
-            }
-          echo "</tbody></table></div>\n";
-        }
+        $options = getOptions();
+        echo "<h4>Optionen einstellen</h4>\n";
+        echo "<div class=\"table-responsive\"><table class=\"table\"><thead><tr>\n";
+        echo "<th>Name</th><th>Wert</th><th>Beschreibung</th>\n";
+        echo "</tr></thead><tbody>\n";
+          foreach ($options as $row) {
+            echo "<tr><td>".$row['name']."</td>\n";
+            echo "<td><a href=\"?options&changerow=".$row['rowid']."\" class=\"text-important\">".($row['value']==1?"true":"false")."</a></td>\n";
+            echo "<td>".$row['description_optional']."</td>\n";
+            echo "</tr>\n";
+          }
+        echo "</tbody></table></div>\n";
       } else if ($show=='changeTableRow') {
         //Formular erstellen
         echo "<h4>Tabelle: ".$tableToChange." - Zeile: ".$rowToChange['rowid']."</h4>\n";
