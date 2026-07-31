@@ -57,11 +57,11 @@
     // Processing get-data when form is submitted
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       if (isset($_GET["deleteSQLtables"])) {
-        $ret = dropAllTables();
+        $ret = resetToDefaults();
          if(!$ret) {
             $result_err = $db->lastErrorMsg();
          } else {
-            $result = "Tabellen gelöscht";
+            $result = "Tabellen gelöscht und mit Standarddaten neu angelegt";
          }
       } else if (isset($_GET["showtables"])) {
         $show='tables';
@@ -173,9 +173,6 @@
           <a class="nav-link active" href="?logout">Logout</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="?deleteSQLtables">Tabellen l&ouml;schen</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="?showtables">Tabellen anzeigen</a>
         </li>
         <li class="nav-item">
@@ -183,6 +180,9 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="?options">Optionen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-danger" href="?deleteSQLtables" onclick="return confirm('Wollen Sie wirklich die Tabellen löschen und auf die Standardeinstellungen zurücksetzen?');">Tabellen l&ouml;schen</a>
         </li>
         <li class="nav-item">
           <a class="nav-link disabled" href="#">.. to be continued ..</a>

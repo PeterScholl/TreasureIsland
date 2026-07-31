@@ -441,100 +441,117 @@ EOF;
 
 
 
+  //legt alle Anwendungstabellen inkl. Standarddaten an, falls sie nicht existieren
+  //(wird beim Öffnen der Datenbank aufgerufen, aber auch nach einem Reset)
+  function ensureTablesExist() {
+    global $db;
+    // clients
+    if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='clients';"))) {
+      console_log("Tabelle clients existiert nicht!");
+      $sql = "CREATE TABLE clients (session_id TEXT, inseltyp INTEGER, ipaddr TEXT, lastedited TEXT, created TEXT);";
+      $ret = $db->exec($sql);
+      if(!$ret){
+          echo $db->lastErrorMsg();
+      } else {
+        console_log("Table clients created successfully");
+      }
+    }
+
+    // piraten
+    if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='piraten';"))) {
+      console_log("Tabelle piraten existiert nicht!");
+      $sql = "CREATE TABLE piraten (bordcardnr INT PRIMARY KEY, aktInsel INT, letzteInsel INT, tour TEXT, letzteFahrtZeit TEXT, erzeugt TEXT);";
+      $ret = $db->exec($sql);
+      if(!$ret){
+          echo $db->lastErrorMsg();
+      } else {
+        console_log("Table piraten created successfully");
+      }
+    }
+
+    // inseln
+    if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='inseln';"))) {
+      console_log("Tabelle inseln existiert nicht!");
+      $sql = "CREATE TABLE inseln (inselnr INT PRIMARY KEY, name TEXT, bilddatei TEXT, zielA INT, zielB INT);";
+      $ret = $db->exec($sql);
+      if(!$ret){
+          echo $db->lastErrorMsg();
+      } else {
+        console_log("Table inseln created successfully");
+           $sql =<<<EOF
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (1, 'Pirates´ Island','pira.jpg', 2, 3 );
+
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (2, 'Shipwreck Bay','ship.jpg', 3, 4 );
+
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (3, 'Musket Hill','musk.jpg', 1, 5 );
+
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (4, 'Dead Man´s Island','dead.jpg', 3, 2 );
+
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (5, 'Mutineers´ Island','muti.jpg', 6, 4 );
+
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (6, 'Smugglers´ Cove','smug.jpg', 1, 7 );
+
+        INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
+        VALUES (7, 'Treasure Island','trea.jpg', -1, -1 );
+EOF;
+       $ret = $db->exec($sql);
+       if(!$ret) {
+          echo $db->lastErrorMsg();
+       } else {
+          console_log("Inseldaten eingetragen");
+       }
+      }
+    }
+
+    // enableoptions -  0 is false - 1 is true
+    if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='enable_options';"))) {
+      console_log("Tabelle enable_options existiert nicht!");
+      $sql = "CREATE TABLE enable_options (name TEXT NOT NULL, value INTEGER DEFAULT 0, description_optional TEXT);";
+      $ret = $db->exec($sql);
+      if(!$ret){
+          echo $db->lastErrorMsg();
+      } else {
+        console_log("Table enable_options created successfully");
+
+           $sql =<<<EOF
+        INSERT INTO enable_options (name,value,description_optional)
+        VALUES ('allowMultipClientsPerIP', 0,'allows to generate multiple Client-IDs within one Session - needed basically for test purposes (Default: false)');
+        INSERT INTO enable_options (name,value,description_optional)
+        VALUES ('allowToChangeIsland', 1,'allows a client to change the assigned island - needed if pupils cant change physical computers (Default: true)');
+        INSERT INTO enable_options (name,value,description_optional)
+        VALUES ('allowBordCardCreation', 1,'allows a pirate to create a bordcard himself (Default: true)');
+EOF;
+       $ret = $db->exec($sql);
+       if(!$ret) {
+          echo $db->lastErrorMsg();
+       } else {
+          console_log("enable_options eingetragen");
+       }
+      }
+    }
+  }
+
+  //setzt die komplette Anwendung auf den Auslieferungszustand zurück
+  //(alle Tabellen löschen und mit Standarddaten neu anlegen)
+  function resetToDefaults() {
+    $ret = dropAllTables();
+    ensureTablesExist();
+    return $ret;
+  }
+
   // prüfen ob tabellen existieren
-  // clients
-  if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='clients';"))) {
-    console_log("Tabelle clients existiert nicht!");
-    $sql = "CREATE TABLE clients (session_id TEXT, inseltyp INTEGER, ipaddr TEXT, lastedited TEXT, created TEXT);";
-    $ret = $db->exec($sql);
-    if(!$ret){
-        echo $db->lastErrorMsg();
-    } else {
-      console_log("Table clients created successfully");
-    }
-  }
-  
-  // piraten
-  if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='piraten';"))) {
-    console_log("Tabelle piraten existiert nicht!");
-    $sql = "CREATE TABLE piraten (bordcardnr INT PRIMARY KEY, aktInsel INT, letzteInsel INT, tour TEXT, letzteFahrtZeit TEXT, erzeugt TEXT);";
-    $ret = $db->exec($sql);
-    if(!$ret){
-        echo $db->lastErrorMsg();
-    } else {
-      console_log("Table piraten created successfully");
-    }
-  }
+  ensureTablesExist();
 
-  // inseln
-  if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='inseln';"))) {
-    console_log("Tabelle inseln existiert nicht!");
-    $sql = "CREATE TABLE inseln (inselnr INT PRIMARY KEY, name TEXT, bilddatei TEXT, zielA INT, zielB INT);";
-    $ret = $db->exec($sql);
-    if(!$ret){
-        echo $db->lastErrorMsg();
-    } else {
-      console_log("Table inseln created successfully");
-         $sql =<<<EOF
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (1, 'Pirates´ Island','pira.jpg', 2, 3 );
-
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (2, 'Shipwreck Bay','ship.jpg', 3, 4 );
-
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (3, 'Musket Hill','musk.jpg', 1, 5 );
-
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (4, 'Dead Man´s Island','dead.jpg', 3, 2 );
-
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (5, 'Mutineers´ Island','muti.jpg', 6, 4 );
-
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (6, 'Smugglers´ Cove','smug.jpg', 1, 7 );
-
-      INSERT INTO inseln (inselnr,name,bilddatei,zielA,zielB)
-      VALUES (7, 'Treasure Island','trea.jpg', -1, -1 );
-EOF;
-     $ret = $db->exec($sql);
-     if(!$ret) {
-        echo $db->lastErrorMsg();
-     } else {
-        console_log("Inseldaten eingetragen");
-     }
-    }
-  }
-  
-  // enableoptions -  0 is false - 1 is true
-  if (is_null($db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='enable_options';"))) {
-    console_log("Tabelle enable_options existiert nicht!");
-    $sql = "CREATE TABLE enable_options (name TEXT NOT NULL, value INTEGER DEFAULT 0, description_optional TEXT);";
-    $ret = $db->exec($sql);
-    if(!$ret){
-        echo $db->lastErrorMsg();
-    } else {
-      console_log("Table enable_options created successfully");
-      
-         $sql =<<<EOF
-      INSERT INTO enable_options (name,value,description_optional)
-      VALUES ('allowMultipClientsPerIP', 0,'allows to generate multiple Client-IDs within one Session - needed basically for test purposes (Default: false)');
-      INSERT INTO enable_options (name,value,description_optional)
-      VALUES ('allowToChangeIsland', 1,'allows a client to change the assigned island - needed if pupils cant change physical computers (Default: true)');
-      INSERT INTO enable_options (name,value,description_optional)
-      VALUES ('allowBordCardCreation', 1,'allows a pirate to create a bordcard himself (Default: true)');
-EOF;
-     $ret = $db->exec($sql);
-     if(!$ret) {
-        echo $db->lastErrorMsg();
-     } else {
-        console_log("enable_options eingetragen");
-     }
-    }
-  }
-     
   //Limits prüfen
   if (CHECKLIMITS) {
+    $clientsVorher = (int)$db->querySingle("SELECT count(*) FROM clients;");
+
     // Alle Clients und Bordkarten löschen die älter als MAXTIME sind
     $sql = "DELETE FROM piraten where strftime('%s','now') - strftime('%s',erzeugt) > ".MAXTIME.";";
     console_log("SQL: ".$sql);
@@ -552,7 +569,16 @@ EOF;
       console_log("Clientbereinigung fehltgeschlagen");
       console_log("Fehler: ".$db->lastErrorMsg);
     }
-    
+
+    // Zum Datenschutz: sobald durch die Bereinigung keine Clients mehr übrig sind,
+    // auch die Einstellungen (enable_options) auf den Standard zurücksetzen
+    if ($clientsVorher > 0) {
+      $clientsNachher = (int)$db->querySingle("SELECT count(*) FROM clients;");
+      if ($clientsNachher == 0) {
+        console_log("Letzte Clients durch Inaktivität entfernt - Einstellungen werden zurückgesetzt");
+        resetToDefaults();
+      }
+    }
   }
 
 ?>

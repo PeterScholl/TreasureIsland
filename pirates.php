@@ -329,7 +329,8 @@ $(document).ready(function(){
         Verfügung stehen oder die SchülerInnen wegen einer Pandemie nicht durcheinander laufen dürfen, vorgesehen.<br><br>
         Viel Spaß beim Reisen!<br><br>
         PS: Als erstes brauchst du eine <a href="?neueBK">Bordkarte</a>!<br><br>
-        Die Piraten werden nach <?php echo intdiv(MAXTIME, 60); ?> Minuten Inaktivität gelöscht.
+        <small>Zum Datenschutz: Piraten und Clientdaten werden nach <?php echo intdiv(MAXTIME, 60); ?> Minuten Inaktivität gelöscht.
+        Wenn die Tabelle Clients dann leer ist, werden auch die Einstellungen zurückgesetzt.</small>
       </div>
 
       <!-- Modal footer -->
