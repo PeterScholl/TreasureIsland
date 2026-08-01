@@ -20,35 +20,55 @@ if(isset($_SESSION["adminloggedin"]) && $_SESSION["adminloggedin"] === true){
 // Define variables and initialize with empty values
 $username = $password = "";
 $username_err = $password_err = $login_err = "";
- 
+
+// Login-Bremse gegen Brute-Force: nach mehreren Fehlversuchen kurze Sperre
+define("LOGIN_MAX_ATTEMPTS", 5);
+define("LOGIN_LOCKOUT_SECONDS", 60);
+if (!isset($_SESSION["login_attempts"])) {
+    $_SESSION["login_attempts"] = 0;
+    $_SESSION["login_locked_until"] = 0;
+}
+
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-     
+
+    if (time() < $_SESSION["login_locked_until"]) {
+        $login_err = "Zu viele Fehlversuche - bitte warten Sie noch " . ($_SESSION["login_locked_until"] - time()) . " Sekunden.";
+    } else {
+
     // Check if password is empty
     if(empty(trim($_POST["password"]))){
         $password_err = "Please enter your password.";
     } else{
         $password = trim($_POST["password"]);
     }
-    
+
     // Validate credentials
     if(empty($password_err)){
         //console_log($_POST["password"]);
 							if(trim($_POST["password"])===ADMINPASS){
 								// Password is correct, so start a new session
 								session_start();
-								
+
 								// Store data in session variables
 								$_SESSION["adminloggedin"] = true;
-								
+								$_SESSION["login_attempts"] = 0;
+
 								// Redirect user to admin page
 								header("location: admin.php");
 							} else{
 								// Password is not valid, display a generic error message
+								$_SESSION["login_attempts"]++;
+								sleep(1); // kleine Bremse gegen automatisierte Versuche
+								if ($_SESSION["login_attempts"] >= LOGIN_MAX_ATTEMPTS) {
+									$_SESSION["login_locked_until"] = time() + LOGIN_LOCKOUT_SECONDS;
+								}
 								$login_err = "Invalid password.";
 							}
     }
-    
+
+    }
+
 }
 ?>
  

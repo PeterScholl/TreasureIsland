@@ -85,16 +85,16 @@
         }
       }
       
-      if (isset($_GET["delrow"])) { //hier soll eine Tabellenzeile gelöscht werden
+      if (isset($_GET["delrow"]) && ALLOWTABLEDELETE) { //hier soll eine Tabellenzeile gelöscht werden
         $rowid = filter_input(INPUT_GET, 'delrow', FILTER_VALIDATE_INT);
         $tablename = trim(filter_input(INPUT_GET, 'table', FILTER_SANITIZE_STRING));
         deleteTableRow($tablename, $rowid);
       }
-      if (isset($_GET["deltable"])) { //hier soll eine Tabelle gelöscht werden
+      if (isset($_GET["deltable"]) && ALLOWTABLEDELETE) { //hier soll eine Tabelle gelöscht werden
         $tablename = trim(filter_input(INPUT_GET, 'deltable', FILTER_SANITIZE_STRING));
         dropTable($tablename);
       }
-      if (isset($_GET["updaterow"]) && isset($_GET["rowid"]) && isset($_GET["table"])) { 
+      if (isset($_GET["updaterow"]) && isset($_GET["rowid"]) && isset($_GET["table"]) && ALLOWTABLEEDIT) {
         //hier ist eine Tabellenzeile zu aktualisieren
         //mit prepare lösen
         foreach (array_keys($_GET) as $key) {
@@ -105,7 +105,7 @@
         }
         $show='tables';
       }
-      if (isset($_GET["changerow"]) && isset($_GET["table"])) {
+      if (isset($_GET["changerow"]) && isset($_GET["table"]) && ALLOWTABLEEDIT) {
         //Änderung einer Tabellenzeile vorbereiten
         console_log("GET-Befehl - Tabellenzeile ändern");
         $show='changeTableRow';
@@ -230,7 +230,11 @@
           foreach($tables as $name) {
             $content = getTableContent($name);
             if ($content) {
-              echo "<h4><a href=\"?deltable=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>Tabelle ".$name."</h4>\n";
+              echo "<h4>";
+              if (ALLOWTABLEDELETE) {
+                echo "<a href=\"?deltable=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>";
+              }
+              echo "Tabelle ".$name."</h4>\n";
               echo "<div class=\"table-responsive\"><table class=\"table\"><thead><tr>\n";
                 foreach ($content['columns'] as $column) {
                   echo "<th>".$column."</th>\n";
@@ -241,8 +245,14 @@
                   for($i = 0; $i<count($row); $i++) {
                     echo "<td>";
                     if ($i==0) {
-                      echo "<a href=\"?delrow=".$row[0]."&table=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>";
-                      echo "<a href=\"?changerow=".$row[0]."&table=".$name."\">".$row[0]."</a></td>\n";
+                      if (ALLOWTABLEDELETE) {
+                        echo "<a href=\"?delrow=".$row[0]."&table=".$name."&showtables\" class=\"text-danger\" role=\"button\">&times;</a>";
+                      }
+                      if (ALLOWTABLEEDIT) {
+                        echo "<a href=\"?changerow=".$row[0]."&table=".$name."\">".$row[0]."</a></td>\n";
+                      } else {
+                        echo $row[0]."</td>\n";
+                      }
                     } else {
                       echo $row[$i]."</td>\n";
                     }
